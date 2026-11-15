@@ -1,0 +1,478 @@
+# AI Agent Instructions: Hypothesis Testing Portfolio Project
+
+## 1. Project Objective
+
+Create a complete, reproducible data analysis portfolio project using **Python and marimo notebooks**.
+
+The project must demonstrate the full hypothesis testing workflow:
+
+1. Import and prepare data
+2. Exploratory Data Analysis (EDA)
+3. Hypothesis formulation and statistical testing
+4. Results interpretation and reporting
+
+The analysis must follow sound statistical practices, use visualizations where useful, and communicate findings in clear language suitable for a data analysis portfolio.
+
+Do not merely generate code. Implement the analysis, execute it, inspect the results, validate the methodology, and produce the required deliverables.
+
+## 2. Dataset
+
+Use the **Rossmann Store Sales** dataset from the Kaggle competition:
+
+https://www.kaggle.com/competitions/rossmann-store-sales/data
+
+The dataset contains daily sales records for individual Rossmann stores, including variables such as:
+
+- `Store`: Store identifier
+- `DayOfWeek`: Day of the week
+- `Date`: Date of observation
+- `Sales`: Daily sales
+- `Customers`: Number of customers
+- `Open`: Whether the store was open
+- `Promo`: Whether a promotion was active
+- `StateHoliday`: State holiday indicator
+- `SchoolHoliday`: School holiday indicator
+
+The `store.csv` file provides additional store-level information.
+
+**Important:** The dataset has already been downloaded. Locate and use the existing local files. Do not download the dataset again unless the files are missing and the user explicitly authorizes obtaining them.
+
+Inspect the available files and determine their actual paths before beginning the analysis.
+
+Do not assume the dataset's precise structure, completeness, or quality without inspecting it.
+
+## 3. Main Research Question
+
+### Primary question
+
+**Do Rossmann stores have significantly different average daily sales on promotional days compared with non-promotional days?**
+
+The analysis should determine:
+
+1. Whether a statistically significant difference exists.
+2. The direction and magnitude of the difference.
+3. How uncertain the estimated difference is.
+4. Whether the observed difference is practically meaningful.
+5. Whether other factors could explain some of the observed difference.
+
+The main analysis is observational. Do not automatically interpret an association between promotions and sales as proof of causation.
+
+## 4. Stages of Analysis
+
+### Stage 1: Import and Data Preparation
+
+#### 1.1 Environment and imports
+
+Use Python with the following libraries where appropriate:
+
+- `marimo` for the notebook
+- `pandas` for data manipulation
+- `numpy` for numerical calculations
+- `scipy.stats` for statistical testing
+- `statsmodels` for statistical models and confidence intervals
+- `matplotlib` and `seaborn` for visualizations
+
+Follow marimo's reactive execution model. Avoid unnecessary duplicated computations, hidden state, and conflicting variable definitions across cells.
+
+#### 1.2 Load the data
+
+- Locate the existing training and store metadata files.
+- Load them into pandas DataFrames.
+- Display the dataset dimensions, column names, data types, and sample rows.
+- Inspect the available date range and store coverage.
+
+#### 1.3 Data quality assessment
+
+Investigate:
+
+- Missing values
+- Duplicate records
+- Invalid or inconsistent values
+- Unexpected data types
+- Invalid dates
+- Zero or negative sales
+- Closed-store observations
+- Missing store metadata
+
+Document the issues found and the decisions made to address them.
+
+Do not silently remove observations or replace missing values without justification.
+
+#### 1.4 Prepare the analytical dataset
+
+- Convert `Date` to a datetime data type.
+- Merge store metadata using the store identifier.
+- Verify the merge and investigate unmatched records.
+- Check the meaning and coding of the `Promo`, `Open`, and `Sales` variables.
+- Create useful analytical features, such as year, month, weekday, and promotion status, when appropriate.
+
+For the primary sales comparison, exclude closed-store observations and handle zero-sales records according to their documented meaning.
+
+Report the number of observations removed at each filtering step.
+
+Do not use the test dataset for the primary analysis unless it is explicitly needed for a separate, justified purpose.
+
+### Stage 2: Exploratory Data Analysis (EDA)
+
+The objective of EDA is to understand the data, identify quality issues, investigate patterns, and assess whether the proposed statistical methods are appropriate.
+
+#### 2.1 Descriptive statistics
+
+Calculate and report:
+
+- Number of observations
+- Number of unique stores
+- Date range
+- Mean and median sales
+- Standard deviation
+- Minimum and maximum sales
+- Interquartile range
+- Number and proportion of promotional observations
+- Customer counts, where relevant
+
+#### 2.2 Distribution analysis
+
+- Plot the distribution of daily sales.
+- Investigate skewness and outliers.
+- Compare sales distributions for promotional and non-promotional observations.
+- Consider transformations or robust summaries if the distribution is strongly skewed.
+
+Do not remove valid high-sales observations merely because they are statistical outliers.
+
+#### 2.3 Comparative analysis
+
+Compare promotional and non-promotional observations using:
+
+- Group sizes
+- Mean and median sales
+- Standard deviations
+- Absolute mean difference
+- Percentage difference in mean sales
+- Box plots or equivalent visualizations
+- Confidence intervals, where appropriate
+
+Use clear chart titles, axis labels, units where known, and legends.
+
+#### 2.4 Investigate potential confounding factors
+
+Examine whether promotional and non-promotional observations differ by:
+
+- Store
+- Day of the week
+- Month or season
+- Year
+- School holidays
+- State holidays
+- Other relevant variables available in the dataset
+
+Explain how these factors might affect the interpretation of the main comparison.
+
+Do not treat EDA findings as proof of statistical significance.
+
+### Stage 3: Hypothesis Testing
+
+#### 3.1 Define the population and estimand
+
+Define the target population as the relevant open-store daily observations represented by the available training data.
+
+Define:
+
+- μP: Mean daily sales during promotional observations.
+- μN: Mean daily sales during non-promotional observations.
+
+The initial comparison is the difference between these group means.
+
+Clearly distinguish the raw difference in means from an adjusted promotion association estimated using a statistical model.
+
+#### 3.2 State the statistical hypotheses
+
+Use the following two-sided hypotheses for the primary test:
+
+H₀: μP − μN = 0
+
+H₁: μP − μN ≠ 0
+
+Use a significance level of α = 0.05.
+
+These hypotheses test whether average daily sales differ between the two observed conditions.
+
+Do not change the hypotheses after inspecting the p-value.
+
+#### 3.3 Select the appropriate statistical test
+
+Begin with **Welch's independent two-sample t-test** as a transparent baseline comparison.
+
+Welch's test does not require equal population variances, but its ordinary independent-observation interpretation does not automatically account for repeated observations from the same store or shared calendar effects.
+
+Therefore, assess the suitability of the baseline test and supplement it with an analysis that better accounts for the data structure.
+
+Consider the following approaches:
+
+**A. Baseline comparison**
+
+- Compare promotional and non-promotional sales using Welch's t-test.
+- Report the test statistic, degrees of freedom where available, and p-value.
+- Calculate a confidence interval for the mean difference.
+
+**B. Store-level paired comparison**
+
+Where sufficient comparable observations exist, calculate mean sales for promotional and non-promotional conditions within each store.
+
+- Retain stores with observations in both conditions.
+- Calculate the within-store difference.
+- Apply a paired t-test to the store-level differences if its assumptions are reasonably satisfied.
+- Examine the distribution of the paired differences and consider a suitable alternative if assumptions are not defensible.
+
+Explain that the store-level analysis estimates a different, store-weighted comparison from the pooled daily-record analysis.
+
+**C. Adjusted regression analysis**
+
+Where feasible, estimate a model that accounts for relevant sources of dependence and confounding.
+
+For example, consider a model with:
+
+- Sales as the outcome.
+- `Promo` as the primary explanatory variable.
+- Store fixed effects.
+- Day-of-week and calendar controls.
+- School holiday and state holiday indicators where appropriate.
+- Standard errors clustered by store, with limitations discussed.
+
+Choose a specification justified by the available data. Avoid adding every variable indiscriminately.
+
+If the full dataset is too large for a proposed method, use a justified and reproducible strategy. Do not silently switch to an arbitrary subset.
+
+#### 3.4 Check assumptions and limitations
+
+Discuss:
+
+- Independence or dependence between observations.
+- Distribution of the outcome or relevant residuals.
+- Unequal variances.
+- Sample size and robustness.
+- Repeated observations within stores.
+- Calendar effects and potential confounding.
+- Missing data and selection effects.
+
+Do not assume that a large sample automatically resolves every methodological problem.
+
+#### 3.5 Interpret the statistical result
+
+For each primary test:
+
+1. State the null and alternative hypotheses.
+2. Report the chosen test and its rationale.
+3. Report the test statistic and p-value.
+4. Report the estimated difference and confidence interval.
+5. Compare the p-value with α = 0.05.
+6. State whether the null hypothesis is rejected or whether there is insufficient evidence to reject it.
+7. Explain the result in plain English.
+8. Distinguish statistical significance from practical significance.
+
+A p-value above 0.05 does not prove that the groups are identical.
+
+A p-value below 0.05 does not establish that the difference is commercially important or caused by the promotion.
+
+### Stage 4: Reporting and Conclusions
+
+Produce a concise, professional report intended for a data analysis portfolio and a non-technical business audience.
+
+The report must include:
+
+#### 4.1 Executive summary
+
+Summarize:
+
+- The research question
+- The data used
+- The principal statistical result
+- The estimated size and direction of the difference
+- The practical interpretation
+- The main limitation
+
+#### 4.2 Data and methodology
+
+Describe:
+
+- Dataset source and files used
+- Date range and analytical sample size
+- Data cleaning decisions
+- EDA findings
+- Hypotheses
+- Statistical tests and why they were selected
+- Assumptions and limitations
+
+#### 4.3 Results
+
+Present a results table containing, where applicable:
+
+- Promotional and non-promotional sample sizes
+- Mean and median sales for each group
+- Mean difference
+- Percentage difference
+- 95% confidence interval
+- Test statistic
+- Degrees of freedom, when applicable
+- p-value
+- Effect size
+- Conclusion at the selected significance level
+
+For adjusted regression, also report the estimated promotion coefficient, its confidence interval, p-value, model specification, and standard-error method.
+
+Clearly label unadjusted and adjusted estimates.
+
+#### 4.4 Visual reporting
+
+Include a small, purposeful set of figures, such as:
+
+- Sales distribution
+- Sales comparison by promotion status
+- Mean difference with confidence interval
+- Relevant time-series or store-level patterns
+
+Avoid excessive charts that do not help answer the research question.
+
+#### 4.5 Business recommendations
+
+Explain what the evidence suggests the retailer should investigate or do next.
+
+Recommendations must follow from the actual findings and must acknowledge uncertainty.
+
+Do not recommend expanding or eliminating promotions solely because a p-value crosses a threshold.
+
+Explain that further causal evaluation may be necessary to determine whether promotions generate incremental sales or profit.
+
+#### 4.6 Limitations and future work
+
+Discuss limitations such as:
+
+- Observational rather than randomized data
+- Store-level dependence
+- Seasonality and other confounding factors
+- Differences between stores
+- Limited information about promotion costs and profit margins
+- The difference between higher sales revenue and higher profit
+
+Suggest a future analysis, such as promotion profitability, heterogeneous effects across store types, or a randomized promotional experiment.
+
+## 5. Evaluation Metrics and Statistical Reporting
+
+Use the following measures where appropriate.
+
+| Metric | Purpose |
+|---|---|
+| Sample size | Establish the amount of available evidence. |
+| Mean and median | Summarize typical sales. |
+| Standard deviation and IQR | Describe variability. |
+| Absolute mean difference | Quantify the difference in sales units. |
+| Percentage difference | Express the difference relative to non-promotional mean sales. |
+| Test statistic and p-value | Evaluate evidence against the null hypothesis. |
+| 95% confidence interval | Quantify uncertainty around the estimated difference. |
+| Cohen's d or Hedges' g | Describe standardized effect size when suitable. |
+| Adjusted regression coefficient | Estimate the promotion association conditional on included controls. |
+| Cluster-robust confidence interval | Account for within-store dependence when using a suitable clustered regression specification. |
+
+Calculate percentage difference as:
+
+Percentage difference = [(Mean promotional sales − Mean non-promotional sales) / Mean non-promotional sales] × 100
+
+Check that the denominator is meaningful and nonzero.
+
+Use a 95% confidence interval and α = 0.05 unless there is a documented reason to choose otherwise.
+
+Do not use prediction metrics such as RMSE or R² as the primary evaluation criteria for this hypothesis-testing project. They may be reported for a separate predictive model, but they do not replace inferential statistics.
+
+## 6. Technical Requirements
+
+- Use Python and marimo.
+- Keep the notebook organized into clearly labeled sections.
+- Write readable, modular code with meaningful variable names.
+- Use functions for repeated data preparation or reporting operations where beneficial.
+- Follow marimo's reactive dependency rules.
+- Use reproducible calculations and fixed random seeds if sampling or stochastic procedures are required.
+- Avoid unnecessary dependencies.
+- Do not hardcode statistical results; calculate them from the actual dataset.
+- Include appropriate assertions or validation checks for critical assumptions.
+- Handle missing files and unexpected columns with clear error messages.
+- Ensure that figures and report outputs are generated reproducibly.
+- Do not claim that code was executed or validated unless it actually was.
+- Do not fabricate results, findings, citations, or business recommendations.
+
+## 7. Deliverables
+
+Produce the following files in a clearly organized project directory.
+
+### Required
+
+**1. `promotion_analysis.py`**
+
+A complete, executable marimo notebook containing:
+
+- Import and preparation
+- EDA
+- Hypothesis definition
+- Statistical tests
+- Evaluation metrics
+- Results interpretation
+- Conclusion
+
+**2. `README.md`**
+
+Include:
+
+- Project overview
+- Business problem and research question
+- Dataset source
+- Installation and execution instructions
+- Analytical methodology
+- Main findings, populated only after the analysis has been executed
+- Project structure
+
+**3. `report.md`**
+
+A standalone report containing the executive summary, methodology, findings, charts or references to generated figures, interpretation, limitations, and recommendations.
+
+**4. `figures/`**
+
+A directory containing the principal charts exported from the notebook.
+
+### Optional, if useful
+
+- `requirements.txt` or an equivalent dependency specification.
+- A cleaned analytical dataset, if its size and licensing permit distribution.
+- A machine-readable statistical results table, such as CSV.
+
+Do not redistribute the original dataset unless its licensing terms permit it.
+
+## 8. Quality Assurance and Completion Criteria
+
+Before declaring the project complete:
+
+1. Confirm that the correct local dataset files were used.
+2. Verify that data cleaning and filtering steps are documented.
+3. Confirm that the statistical hypotheses match the implemented tests.
+4. Validate the formulas for differences, percentages, confidence intervals, and effect sizes.
+5. Confirm that the test assumptions and repeated-store structure are addressed.
+6. Check that all reported values match the executed analysis.
+7. Confirm that charts have appropriate titles, labels, and legends.
+8. Run the notebook from a clean execution state where feasible.
+9. Check that the report and README agree with the final results.
+10. Ensure that no findings or conclusions are fabricated.
+
+## 9. Execution Strategy
+
+Work through the project in the following order:
+
+1. Inspect the project directory and locate the downloaded dataset.
+2. Review the dataset structure and develop the analysis plan.
+3. Implement data preparation and quality checks.
+4. Conduct EDA and inspect the findings.
+5. Define and execute the primary statistical test.
+6. Conduct the store-aware comparison and adjusted analysis where feasible.
+7. Validate the calculations and interpret the results.
+8. Generate the figures, report, and README.
+9. Execute final quality checks and summarize the completed deliverables.
+
+If an important methodological or technical issue arises, explain it and select a defensible alternative rather than silently proceeding with an invalid analysis.
+
+**Final objective:** Deliver a reproducible, statistically sound, portfolio-ready hypothesis testing project in marimo that demonstrates the complete process of answering a real-world business question with data.

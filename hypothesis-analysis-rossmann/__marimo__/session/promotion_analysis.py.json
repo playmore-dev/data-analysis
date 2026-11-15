@@ -1,0 +1,412 @@
+{
+  "version": "1",
+  "metadata": {
+    "marimo_version": "0.25.0",
+    "script_metadata_hash": "2fb1e04b60f56d2f6a31e1627f9e2d06"
+  },
+  "cells": [
+    {
+      "id": "Hbol",
+      "code_hash": "b5f7c3d3e5d17098602cea930b0ac407",
+      "outputs": [
+        {
+          "type": "data",
+          "data": {
+            "text/markdown": "<span class=\"markdown prose dark:prose-invert contents\"><h1 id=\"do-rossmann-promotions-change-daily-sales\">Do Rossmann promotions change daily sales?</h1>\n<span class=\"paragraph\"><strong>Research question:</strong> Do Rossmann stores have significantly different average\ndaily sales on promotional days compared with non-promotional days?</span>\n<ul>\n<li><strong>Data:</strong> <code>rossmann-store-sales/train.csv</code> + <code>rossmann-store-sales/store.csv</code>\n  (<code>test.csv</code> / <code>sample_submission.csv</code> ignored).</li>\n<li><strong>Design:</strong> observational \u2014 association only, not causal proof.</li>\n<li><strong>Primary test:</strong> Welch's t-test on log(Sales), two-sided, \u03b1 = 0.05,\n  H\u2080: \u03bcP \u2212 \u03bcN = 0 vs H\u2081: \u03bcP \u2212 \u03bcN \u2260 0.</li>\n<li><strong>Robustness:</strong> store-level paired t-test + Wilcoxon signed-rank.</li>\n</ul></span>"
+          }
+        }
+      ],
+      "console": []
+    },
+    {
+      "id": "MJUe",
+      "code_hash": "2d8ff9e39e73d308c4ca61fb2e0b9065",
+      "outputs": [
+        {
+          "type": "data",
+          "data": {
+            "text/plain": ""
+          }
+        }
+      ],
+      "console": []
+    },
+    {
+      "id": "vblA",
+      "code_hash": "06be18d91f8091339f910c9353865f0f",
+      "outputs": [
+        {
+          "type": "data",
+          "data": {
+            "text/plain": ""
+          }
+        }
+      ],
+      "console": []
+    },
+    {
+      "id": "bkHC",
+      "code_hash": "ca1c3214f6be357fca1652852967f227",
+      "outputs": [
+        {
+          "type": "data",
+          "data": {
+            "text/markdown": "<span class=\"markdown prose dark:prose-invert contents\"><h2 id=\"stage-1-load-data\">Stage 1 \u00b7 Load data</h2></span>"
+          }
+        }
+      ],
+      "console": []
+    },
+    {
+      "id": "lEQa",
+      "code_hash": "b7e788d2e07561f191666dacc70f347d",
+      "outputs": [
+        {
+          "type": "data",
+          "data": {
+            "text/plain": ""
+          }
+        }
+      ],
+      "console": []
+    },
+    {
+      "id": "PKri",
+      "code_hash": "adbf761a71b8d56a44de60faddc6801c",
+      "outputs": [
+        {
+          "type": "data",
+          "data": {
+            "text/markdown": "<span class=\"markdown prose dark:prose-invert contents\"><table>\n<thead>\n<tr>\n<th>Dataset</th>\n<th>Shape</th>\n<th>Notes</th>\n</tr>\n</thead>\n<tbody>\n<tr>\n<td>train <code>/rossmann-store-sales/train.csv</code></td>\n<td>1,017,209 \u00d7 9</td>\n<td>daily records, 1115 stores, 2013-01-01 \u2192 2015-07-31</td>\n</tr>\n<tr>\n<td>store <code>/rossmann-store-sales/store.csv</code></td>\n<td>1,115 \u00d7 10</td>\n<td>store-level metadata</td>\n</tr>\n</tbody>\n</table></span>"
+          }
+        }
+      ],
+      "console": []
+    },
+    {
+      "id": "Xref",
+      "code_hash": "d8f93affdaabb38c270ed93d3af90862",
+      "outputs": [
+        {
+          "type": "data",
+          "data": {
+            "text/markdown": "<span class=\"markdown prose dark:prose-invert contents\"><h2 id=\"stage-1-data-quality-assessment\">Stage 1 \u00b7 Data quality assessment</h2></span>"
+          }
+        }
+      ],
+      "console": []
+    },
+    {
+      "id": "SFPL",
+      "code_hash": "634dfa00325a58ab02cd6a35d812c76e",
+      "outputs": [
+        {
+          "type": "data",
+          "data": {
+            "text/html": "<marimo-ui-element object-id='SFPL-0' random-id='e37f85b2-a208-d5bb-ce80-c3b92c93ea34'><marimo-table data-initial-value='[]' data-label='null' data-data='&quot;[{&#92;&quot;check&#92;&quot;:&#92;&quot;duplicated (Store, Date) rows&#92;&quot;,&#92;&quot;result&#92;&quot;:0},{&#92;&quot;check&#92;&quot;:&#92;&quot;missing values in train&#92;&quot;,&#92;&quot;result&#92;&quot;:0},{&#92;&quot;check&#92;&quot;:&#92;&quot;open days with Sales &#92;&#92;u2264 0&#92;&quot;,&#92;&quot;result&#92;&quot;:54},{&#92;&quot;check&#92;&quot;:&#92;&quot;closed days (all Sales = 0)&#92;&quot;,&#92;&quot;result&#92;&quot;:172817},{&#92;&quot;check&#92;&quot;:&#92;&quot;negative customer counts&#92;&quot;,&#92;&quot;result&#92;&quot;:0},{&#92;&quot;check&#92;&quot;:&#92;&quot;StateHoliday distinct codes&#92;&quot;,&#92;&quot;result&#92;&quot;:&#92;&quot;0, a, b, c&#92;&quot;}]&quot;' data-total-rows='6' data-total-columns='2' data-max-columns='50' data-banner-text='&quot;&quot;' data-pagination='false' data-page-size='10' data-field-types='[[&quot;check&quot;,[&quot;string&quot;,&quot;str&quot;]],[&quot;result&quot;,[&quot;string&quot;,&quot;object&quot;]]]' data-show-filters='true' data-show-download='true' data-show-search='true' data-show-column-summaries='false' data-show-data-types='true' data-show-page-size-selector='true' data-show-column-explorer='true' data-show-chart-builder='true' data-row-headers='[]' data-hidden-columns='[]' data-has-stable-row-id='false' data-lazy='false' data-preload='false'></marimo-table></marimo-ui-element>"
+          }
+        }
+      ],
+      "console": []
+    },
+    {
+      "id": "BYtC",
+      "code_hash": "00771fa3c6d14a1bae1e853c0fc59cad",
+      "outputs": [
+        {
+          "type": "data",
+          "data": {
+            "text/html": "<marimo-ui-element object-id='BYtC-0' random-id='521817fc-b1d0-4cea-31c1-610279733b0e'><marimo-table data-initial-value='[]' data-label='null' data-data='&quot;[{&#92;&quot;DayOfWeek&#92;&quot;:1,&#92;&quot;Promo&#92;&quot;:0.54},{&#92;&quot;DayOfWeek&#92;&quot;:2,&#92;&quot;Promo&#92;&quot;:0.53},{&#92;&quot;DayOfWeek&#92;&quot;:3,&#92;&quot;Promo&#92;&quot;:0.53},{&#92;&quot;DayOfWeek&#92;&quot;:4,&#92;&quot;Promo&#92;&quot;:0.53},{&#92;&quot;DayOfWeek&#92;&quot;:5,&#92;&quot;Promo&#92;&quot;:0.53},{&#92;&quot;DayOfWeek&#92;&quot;:6,&#92;&quot;Promo&#92;&quot;:0.0},{&#92;&quot;DayOfWeek&#92;&quot;:7,&#92;&quot;Promo&#92;&quot;:0.0}]&quot;' data-total-rows='7' data-total-columns='1' data-max-columns='50' data-banner-text='&quot;&quot;' data-pagination='false' data-page-size='10' data-field-types='[[&quot;Promo&quot;,[&quot;number&quot;,&quot;float64&quot;]]]' data-show-filters='true' data-show-download='true' data-show-search='true' data-show-column-summaries='false' data-show-data-types='true' data-show-page-size-selector='true' data-show-column-explorer='true' data-show-chart-builder='true' data-row-headers='[[&quot;DayOfWeek&quot;,[&quot;integer&quot;,&quot;int64&quot;]]]' data-hidden-columns='[]' data-has-stable-row-id='false' data-lazy='false' data-preload='false'></marimo-table></marimo-ui-element>"
+          }
+        }
+      ],
+      "console": []
+    },
+    {
+      "id": "RGSE",
+      "code_hash": "1d593541d3767f3977837e8ebfaa8be2",
+      "outputs": [
+        {
+          "type": "data",
+          "data": {
+            "text/markdown": "<span class=\"markdown prose dark:prose-invert contents\"><h3 id=\"quality-findings-cleaning-decisions\">Quality findings \u2192 cleaning decisions</h3>\n<ol>\n<li><code>StateHoliday</code> mixes bare <code>0</code> and the string <code>\"0\"</code> \u2192 normalized to string codes.</li>\n<li><strong>172,817 closed-store days</strong> (all Sales = 0,\n   Customers = 0) are not trading days \u2192 excluded from the comparison.</li>\n<li>Open days with Sales \u2264 0 (rare refurbishment-like anomalies) \u2192 excluded and counted.</li>\n<li>No duplicated (Store, Date) keys; no missing values in train. <code>store.csv</code>\n   structural missings (competition / Promo2 fields) are not used in the primary test.</li>\n<li><strong>Promotions only run Monday\u2013Friday</strong> (Sat share = 0.00,\n   Sun share = 0.00) \u2192 promo status is confounded with\n   day of week; the store-level paired design (Test B) partially mitigates\n   store-level and weekday-mix differences.</li>\n</ol>\n<span class=\"paragraph\"><em>No outlier trimming:</em> high-sales days are genuine business volume.</span></span>"
+          }
+        }
+      ],
+      "console": []
+    },
+    {
+      "id": "Kclp",
+      "code_hash": "a3f81241c638acbf58297424cb15ad17",
+      "outputs": [
+        {
+          "type": "data",
+          "data": {
+            "text/plain": ""
+          }
+        }
+      ],
+      "console": []
+    },
+    {
+      "id": "emfo",
+      "code_hash": "c50680b7f02efc1032af7c9c00af99c8",
+      "outputs": [
+        {
+          "type": "data",
+          "data": {
+            "text/plain": ""
+          }
+        }
+      ],
+      "console": []
+    },
+    {
+      "id": "Hstk",
+      "code_hash": "1fe97745cfd1a93dde7dea577672f6e5",
+      "outputs": [
+        {
+          "type": "data",
+          "data": {
+            "text/markdown": "<span class=\"markdown prose dark:prose-invert contents\"><span class=\"paragraph\"><strong>Filtering audit trail</strong></span>\n<table>\n<thead>\n<tr>\n<th>step</th>\n<th>rows removed</th>\n<th>rows remaining</th>\n</tr>\n</thead>\n<tbody>\n<tr>\n<td>start</td>\n<td>\u2014</td>\n<td>1,017,209</td>\n</tr>\n<tr>\n<td>drop closed days (Open = 0)</td>\n<td>172,817</td>\n<td>844,392</td>\n</tr>\n<tr>\n<td>drop open days with Sales \u2264 0</td>\n<td>54</td>\n<td>844,338</td>\n</tr>\n</tbody>\n</table>\n<span class=\"paragraph\">Final analytical sample: <strong>844,338 open-store days</strong>\nacross 1,115 stores, all with Sales &gt; 0, so log(Sales) is defined.</span></span>"
+          }
+        }
+      ],
+      "console": []
+    },
+    {
+      "id": "nWHF",
+      "code_hash": "b47e6377dec5d05b2c6a0d93ac95134a",
+      "outputs": [
+        {
+          "type": "data",
+          "data": {
+            "text/markdown": "<span class=\"markdown prose dark:prose-invert contents\"><h2 id=\"stage-2-exploratory-data-analysis\">Stage 2 \u00b7 Exploratory Data Analysis</h2></span>"
+          }
+        }
+      ],
+      "console": []
+    },
+    {
+      "id": "iLit",
+      "code_hash": "9562a71d9aa575102dffe7442bab7e3e",
+      "outputs": [
+        {
+          "type": "data",
+          "data": {
+            "text/html": "<marimo-ui-element object-id='iLit-0' random-id='2b4404ca-d81e-d702-4ba1-8455f3f6fb3b'><marimo-table data-initial-value='[]' data-label='null' data-data='&quot;[{&#92;&quot;Index0&#92;&quot;:&#92;&quot;observations&#92;&quot;,&#92;&quot;value&#92;&quot;:844338.0},{&#92;&quot;Index0&#92;&quot;:&#92;&quot;stores&#92;&quot;,&#92;&quot;value&#92;&quot;:1115.0},{&#92;&quot;Index0&#92;&quot;:&#92;&quot;mean_sales_EUR&#92;&quot;,&#92;&quot;value&#92;&quot;:6955.96},{&#92;&quot;Index0&#92;&quot;:&#92;&quot;median_sales_EUR&#92;&quot;,&#92;&quot;value&#92;&quot;:6369.0},{&#92;&quot;Index0&#92;&quot;:&#92;&quot;std_sales_EUR&#92;&quot;,&#92;&quot;value&#92;&quot;:3103.82},{&#92;&quot;Index0&#92;&quot;:&#92;&quot;p25&#92;&quot;,&#92;&quot;value&#92;&quot;:4859.0},{&#92;&quot;Index0&#92;&quot;:&#92;&quot;p75&#92;&quot;,&#92;&quot;value&#92;&quot;:8360.0},{&#92;&quot;Index0&#92;&quot;:&#92;&quot;iqr&#92;&quot;,&#92;&quot;value&#92;&quot;:3501.0},{&#92;&quot;Index0&#92;&quot;:&#92;&quot;skew&#92;&quot;,&#92;&quot;value&#92;&quot;:1.595},{&#92;&quot;Index0&#92;&quot;:&#92;&quot;mean_log_sales&#92;&quot;,&#92;&quot;value&#92;&quot;:8.758}]&quot;' data-total-rows='14' data-total-columns='1' data-max-columns='50' data-banner-text='&quot;&quot;' data-pagination='true' data-page-size='10' data-field-types='[[&quot;value&quot;,[&quot;number&quot;,&quot;float64&quot;]]]' data-show-filters='true' data-show-download='true' data-show-search='true' data-show-column-summaries='true' data-show-data-types='true' data-show-page-size-selector='true' data-show-column-explorer='true' data-show-chart-builder='true' data-row-headers='[[&quot;Index0&quot;,[&quot;string&quot;,&quot;str&quot;]]]' data-hidden-columns='[]' data-has-stable-row-id='false' data-lazy='false' data-preload='false'></marimo-table></marimo-ui-element>"
+          }
+        }
+      ],
+      "console": []
+    },
+    {
+      "id": "ZHCJ",
+      "code_hash": "986b4923ba9b9bf757fe365cf39562c3",
+      "outputs": [
+        {
+          "type": "data",
+          "data": {
+            "application/json": "[\"text/html:<marimo-ui-element object-id='ZHCJ-0' random-id='50679061-f284-c77e-851b-bc5eace34332'><marimo-table data-initial-value='[]' data-label='null' data-data='&quot;[{&#92;&quot;PromoLabel&#92;&quot;:&#92;&quot;No promo&#92;&quot;,&#92;&quot;n&#92;&quot;:467463,&#92;&quot;mean_sales&#92;&quot;:5929.83,&#92;&quot;median_sales&#92;&quot;:5459.0,&#92;&quot;std_sales&#92;&quot;:2629.27,&#92;&quot;mean_log_sales&#92;&quot;:8.6,&#92;&quot;mean_customers&#92;&quot;:696.91},{&#92;&quot;PromoLabel&#92;&quot;:&#92;&quot;Promo&#92;&quot;,&#92;&quot;n&#92;&quot;:376875,&#92;&quot;mean_sales&#92;&quot;:8228.74,&#92;&quot;median_sales&#92;&quot;:7650.0,&#92;&quot;std_sales&#92;&quot;:3175.25,&#92;&quot;mean_log_sales&#92;&quot;:8.95,&#92;&quot;mean_customers&#92;&quot;:844.48}]&quot;' data-total-rows='2' data-total-columns='6' data-max-columns='50' data-banner-text='&quot;&quot;' data-pagination='false' data-page-size='10' data-field-types='[[&quot;n&quot;,[&quot;integer&quot;,&quot;int64&quot;]],[&quot;mean_sales&quot;,[&quot;number&quot;,&quot;float64&quot;]],[&quot;median_sales&quot;,[&quot;number&quot;,&quot;float64&quot;]],[&quot;std_sales&quot;,[&quot;number&quot;,&quot;float64&quot;]],[&quot;mean_log_sales&quot;,[&quot;number&quot;,&quot;float64&quot;]],[&quot;mean_customers&quot;,[&quot;number&quot;,&quot;float64&quot;]]]' data-show-filters='true' data-show-download='true' data-show-search='true' data-show-column-summaries='false' data-show-data-types='true' data-show-page-size-selector='false' data-show-column-explorer='true' data-show-chart-builder='true' data-row-headers='[[&quot;PromoLabel&quot;,[&quot;string&quot;,&quot;str&quot;]]]' data-hidden-columns='[]' data-has-stable-row-id='false' data-lazy='false' data-preload='false'></marimo-table></marimo-ui-element>\", \"text/plain+float:2298.91\", \"text/plain+float:38.76856503474804\"]"
+          }
+        }
+      ],
+      "console": []
+    },
+    {
+      "id": "ROlb",
+      "code_hash": "403b8ff4fce1008257da8051ed266c7f",
+      "outputs": [
+        {
+          "type": "data",
+          "data": {
+            "text/plain": ""
+          }
+        }
+      ],
+      "console": []
+    },
+    {
+      "id": "qnkX",
+      "code_hash": "b227a234f6d83e640844d14d5ea4cf0c",
+      "outputs": [
+        {
+          "type": "data",
+          "data": {
+            "text/plain": ""
+          }
+        }
+      ],
+      "console": []
+    },
+    {
+      "id": "TqIu",
+      "code_hash": "f7abb338d1b4397fbb0fc8adae1ab451",
+      "outputs": [
+        {
+          "type": "data",
+          "data": {
+            "text/plain": ""
+          }
+        }
+      ],
+      "console": []
+    },
+    {
+      "id": "Vxnm",
+      "code_hash": "52f33734c9d1f21aa4a27709cca5dc37",
+      "outputs": [
+        {
+          "type": "data",
+          "data": {
+            "text/plain": ""
+          }
+        }
+      ],
+      "console": []
+    },
+    {
+      "id": "DnEU",
+      "code_hash": "f67be28d41c27a8cc2a11f7fab9f576b",
+      "outputs": [
+        {
+          "type": "data",
+          "data": {
+            "application/json": "[\"text/html:<marimo-ui-element object-id='DnEU-0' random-id='d0f938f7-14ac-bba4-4571-c48eaaac3c77'><marimo-table data-initial-value='[]' data-label='null' data-data='&quot;[{&#92;&quot;PromoLabel&#92;&quot;:&#92;&quot;No promo&#92;&quot;,&#92;&quot;mean_sales&#92;&quot;:5929.826,&#92;&quot;mean_customers&#92;&quot;:696.906,&#92;&quot;weekday_share&#92;&quot;:0.684,&#92;&quot;schoolholiday_share&#92;&quot;:0.183,&#92;&quot;stateholiday_share&#92;&quot;:0.001},{&#92;&quot;PromoLabel&#92;&quot;:&#92;&quot;Promo&#92;&quot;,&#92;&quot;mean_sales&#92;&quot;:8228.74,&#92;&quot;mean_customers&#92;&quot;:844.481,&#92;&quot;weekday_share&#92;&quot;:1.0,&#92;&quot;schoolholiday_share&#92;&quot;:0.206,&#92;&quot;stateholiday_share&#92;&quot;:0.001}]&quot;' data-total-rows='2' data-total-columns='5' data-max-columns='50' data-banner-text='&quot;&quot;' data-pagination='false' data-page-size='10' data-field-types='[[&quot;mean_sales&quot;,[&quot;number&quot;,&quot;float64&quot;]],[&quot;mean_customers&quot;,[&quot;number&quot;,&quot;float64&quot;]],[&quot;weekday_share&quot;,[&quot;number&quot;,&quot;float64&quot;]],[&quot;schoolholiday_share&quot;,[&quot;number&quot;,&quot;float64&quot;]],[&quot;stateholiday_share&quot;,[&quot;number&quot;,&quot;float64&quot;]]]' data-show-filters='true' data-show-download='true' data-show-search='true' data-show-column-summaries='false' data-show-data-types='true' data-show-page-size-selector='false' data-show-column-explorer='true' data-show-chart-builder='true' data-row-headers='[[&quot;PromoLabel&quot;,[&quot;string&quot;,&quot;str&quot;]]]' data-hidden-columns='[]' data-has-stable-row-id='false' data-lazy='false' data-preload='false'></marimo-table></marimo-ui-element>\", \"text/html:<marimo-ui-element object-id='DnEU-1' random-id='6b4c6686-b2f2-b37f-9de8-9ce8fe132ef4'><marimo-table data-initial-value='[]' data-label='null' data-data='&quot;[{&#92;&quot;PromoLabel&#92;&quot;:&#92;&quot;No promo&#92;&quot;,&#92;&quot;Mon&#92;&quot;:0.129,&#92;&quot;Tue&#92;&quot;:0.143,&#92;&quot;Wed&#92;&quot;:0.14,&#92;&quot;Thu&#92;&quot;:0.129,&#92;&quot;Fri&#92;&quot;:0.142,&#92;&quot;Sat&#92;&quot;:0.308,&#92;&quot;Sun&#92;&quot;:0.008},{&#92;&quot;PromoLabel&#92;&quot;:&#92;&quot;Promo&#92;&quot;,&#92;&quot;Mon&#92;&quot;:0.205,&#92;&quot;Tue&#92;&quot;:0.205,&#92;&quot;Wed&#92;&quot;:0.202,&#92;&quot;Thu&#92;&quot;:0.197,&#92;&quot;Fri&#92;&quot;:0.191,&#92;&quot;Sat&#92;&quot;:NaN,&#92;&quot;Sun&#92;&quot;:NaN}]&quot;' data-total-rows='2' data-total-columns='7' data-max-columns='50' data-banner-text='&quot;&quot;' data-pagination='false' data-page-size='10' data-field-types='[[&quot;Mon&quot;,[&quot;number&quot;,&quot;float64&quot;]],[&quot;Tue&quot;,[&quot;number&quot;,&quot;float64&quot;]],[&quot;Wed&quot;,[&quot;number&quot;,&quot;float64&quot;]],[&quot;Thu&quot;,[&quot;number&quot;,&quot;float64&quot;]],[&quot;Fri&quot;,[&quot;number&quot;,&quot;float64&quot;]],[&quot;Sat&quot;,[&quot;number&quot;,&quot;float64&quot;]],[&quot;Sun&quot;,[&quot;number&quot;,&quot;float64&quot;]]]' data-show-filters='true' data-show-download='true' data-show-search='true' data-show-column-summaries='false' data-show-data-types='true' data-show-page-size-selector='false' data-show-column-explorer='true' data-show-chart-builder='true' data-row-headers='[[&quot;PromoLabel&quot;,[&quot;string&quot;,&quot;str&quot;]]]' data-hidden-columns='[]' data-has-stable-row-id='false' data-lazy='false' data-preload='false'></marimo-table></marimo-ui-element>\", \"text/html:<marimo-ui-element object-id='DnEU-2' random-id='212b3182-e604-0362-a202-a0a20161a21f'><marimo-table data-initial-value='[]' data-label='null' data-data='&quot;[{&#92;&quot;StoreType&#92;&quot;:&#92;&quot;a&#92;&quot;,&#92;&quot;No promo&#92;&quot;:5809.0,&#92;&quot;Promo&#92;&quot;:8305.0},{&#92;&quot;StoreType&#92;&quot;:&#92;&quot;b&#92;&quot;,&#92;&quot;No promo&#92;&quot;:9568.0,&#92;&quot;Promo&#92;&quot;:11312.0},{&#92;&quot;StoreType&#92;&quot;:&#92;&quot;c&#92;&quot;,&#92;&quot;No promo&#92;&quot;:6029.0,&#92;&quot;Promo&#92;&quot;:8043.0},{&#92;&quot;StoreType&#92;&quot;:&#92;&quot;d&#92;&quot;,&#92;&quot;No promo&#92;&quot;:5855.0,&#92;&quot;Promo&#92;&quot;:8018.0}]&quot;' data-total-rows='4' data-total-columns='2' data-max-columns='50' data-banner-text='&quot;&quot;' data-pagination='false' data-page-size='10' data-field-types='[[&quot;No promo&quot;,[&quot;number&quot;,&quot;float64&quot;]],[&quot;Promo&quot;,[&quot;number&quot;,&quot;float64&quot;]]]' data-show-filters='true' data-show-download='true' data-show-search='true' data-show-column-summaries='false' data-show-data-types='true' data-show-page-size-selector='false' data-show-column-explorer='true' data-show-chart-builder='true' data-row-headers='[[&quot;StoreType&quot;,[&quot;string&quot;,&quot;str&quot;]]]' data-hidden-columns='[]' data-has-stable-row-id='false' data-lazy='false' data-preload='false'></marimo-table></marimo-ui-element>\"]"
+          }
+        }
+      ],
+      "console": []
+    },
+    {
+      "id": "ulZA",
+      "code_hash": "520ec8dfe340b9e140dbcb67c4ec2c16",
+      "outputs": [
+        {
+          "type": "data",
+          "data": {
+            "text/markdown": "<span class=\"markdown prose dark:prose-invert contents\"><span class=\"paragraph\"><strong>EDA takeaway on confounders.</strong> Promo days concentrate on Monday\u2013Thursday while\nclosed Sundays pull down the non-promo mean; school-holiday incidence is similar\nin both groups (\u224821% vs\n18%), and state-holiday days\nare rare in either (~0.1%). Because promo status correlates with weekday and each\nstore contributes many days, the pooled daily comparison (Test A) can overweight\nthe promotion association. The store-level paired design (Test B) holds each store\nconstant, giving a like-for-like estimate.</span></span>"
+          }
+        }
+      ],
+      "console": []
+    },
+    {
+      "id": "ecfG",
+      "code_hash": "e334d4ab027025ba042872e663bf8a19",
+      "outputs": [
+        {
+          "type": "data",
+          "data": {
+            "text/markdown": "<span class=\"markdown prose dark:prose-invert contents\"><h2 id=\"stage-3-hypothesis-testing\">Stage 3 \u00b7 Hypothesis testing</h2>\n<span class=\"paragraph\">Two-sided, \u03b1 = 0.05.</span>\n<ul>\n<li><strong>H\u2080:</strong> \u03bcP \u2212 \u03bcN = 0</li>\n<li><strong>H\u2081:</strong> \u03bcP \u2212 \u03bcN \u2260 0</li>\n</ul>\n<span class=\"paragraph\">where \u03bcP, \u03bcN are mean log daily sales on promotional / non-promotional days for\nopen stores. We work on the <strong>log scale</strong> because raw Sales is right-skewed;\neffects are back-transformed to % uplift: 100 \u00d7 (exp(mean log diff) \u2212 1).</span></span>"
+          }
+        }
+      ],
+      "console": []
+    },
+    {
+      "id": "Pvdt",
+      "code_hash": "9ab74a17f5657e087ef777fda6b331f1",
+      "outputs": [
+        {
+          "type": "data",
+          "data": {
+            "text/plain": ""
+          }
+        }
+      ],
+      "console": []
+    },
+    {
+      "id": "ZBYS",
+      "code_hash": "a91e4da28486341b163bac7c26f87e90",
+      "outputs": [
+        {
+          "type": "data",
+          "data": {
+            "text/plain": ""
+          }
+        }
+      ],
+      "console": []
+    },
+    {
+      "id": "aLJB",
+      "code_hash": "9822ce725d345794a23486c2616985e3",
+      "outputs": [
+        {
+          "type": "data",
+          "data": {
+            "text/plain": ""
+          }
+        }
+      ],
+      "console": []
+    },
+    {
+      "id": "nHfw",
+      "code_hash": "c335444f0d44337fe8889279c8f4f36b",
+      "outputs": [
+        {
+          "type": "data",
+          "data": {
+            "text/html": "<marimo-ui-element object-id='nHfw-0' random-id='76c8cf91-6212-35c9-9310-fc73b5f16f74'><marimo-table data-initial-value='[]' data-label='null' data-data='&quot;[{&#92;&quot;analysis&#92;&quot;:&#92;&quot;A. Welch t-test on daily log sales (unadjusted)&#92;&quot;,&#92;&quot;n_promo&#92;&quot;:376875,&#92;&quot;n_non_promo&#92;&quot;:467463,&#92;&quot;test_statistic&#92;&quot;:412.29,&#92;&quot;df&#92;&quot;:838092.0,&#92;&quot;p_value&#92;&quot;:0.0,&#92;&quot;mean_diff_log&#92;&quot;:0.3462,&#92;&quot;95CI_diff_log&#92;&quot;:&#92;&quot;(0.3446, 0.3479)&#92;&quot;,&#92;&quot;uplift_pct&#92;&quot;:41.4,&#92;&quot;95CI_uplift_pct&#92;&quot;:&#92;&quot;(41.1, 41.6)&#92;&quot;,&#92;&quot;effect_size&#92;&quot;:&#92;&quot;Hedges&#x27; g = 0.890&#92;&quot;,&#92;&quot;reject_H0_at_0.05&#92;&quot;:true},{&#92;&quot;analysis&#92;&quot;:&#92;&quot;B. Paired t-test on store-level mean log sales&#92;&quot;,&#92;&quot;n_promo&#92;&quot;:&#92;&quot;store-level&#92;&quot;,&#92;&quot;n_non_promo&#92;&quot;:&#92;&quot;store-level&#92;&quot;,&#92;&quot;test_statistic&#92;&quot;:88.81,&#92;&quot;df&#92;&quot;:NaN,&#92;&quot;p_value&#92;&quot;:0.0,&#92;&quot;mean_diff_log&#92;&quot;:0.3462,&#92;&quot;95CI_diff_log&#92;&quot;:&#92;&quot;(0.3385, 0.3538)&#92;&quot;,&#92;&quot;uplift_pct&#92;&quot;:41.4,&#92;&quot;95CI_uplift_pct&#92;&quot;:&#92;&quot;(40.3, 42.5)&#92;&quot;,&#92;&quot;effect_size&#92;&quot;:&#92;&quot;Cohen&#x27;s dz = 2.660&#92;&quot;,&#92;&quot;reject_H0_at_0.05&#92;&quot;:true}]&quot;' data-total-rows='2' data-total-columns='12' data-max-columns='50' data-banner-text='&quot;&quot;' data-pagination='false' data-page-size='10' data-field-types='[[&quot;analysis&quot;,[&quot;string&quot;,&quot;str&quot;]],[&quot;n_promo&quot;,[&quot;string&quot;,&quot;object&quot;]],[&quot;n_non_promo&quot;,[&quot;string&quot;,&quot;object&quot;]],[&quot;test_statistic&quot;,[&quot;number&quot;,&quot;float64&quot;]],[&quot;df&quot;,[&quot;number&quot;,&quot;float64&quot;]],[&quot;p_value&quot;,[&quot;number&quot;,&quot;float64&quot;]],[&quot;mean_diff_log&quot;,[&quot;number&quot;,&quot;float64&quot;]],[&quot;95CI_diff_log&quot;,[&quot;string&quot;,&quot;str&quot;]],[&quot;uplift_pct&quot;,[&quot;number&quot;,&quot;float64&quot;]],[&quot;95CI_uplift_pct&quot;,[&quot;string&quot;,&quot;str&quot;]],[&quot;effect_size&quot;,[&quot;string&quot;,&quot;str&quot;]],[&quot;reject_H0_at_0.05&quot;,[&quot;boolean&quot;,&quot;bool&quot;]]]' data-show-filters='true' data-show-download='true' data-show-search='true' data-show-column-summaries='false' data-show-data-types='true' data-show-page-size-selector='false' data-show-column-explorer='true' data-show-chart-builder='true' data-row-headers='[]' data-hidden-columns='[]' data-has-stable-row-id='false' data-lazy='false' data-preload='false'></marimo-table></marimo-ui-element>"
+          }
+        }
+      ],
+      "console": []
+    },
+    {
+      "id": "xXTn",
+      "code_hash": "933449b0468383d0527c94c50707f697",
+      "outputs": [
+        {
+          "type": "data",
+          "data": {
+            "text/plain": ""
+          }
+        }
+      ],
+      "console": []
+    },
+    {
+      "id": "AjVT",
+      "code_hash": "0f08ed0738c4b2b869bacf0be4fd6979",
+      "outputs": [
+        {
+          "type": "data",
+          "data": {
+            "text/markdown": "<span class=\"markdown prose dark:prose-invert contents\"><h2 id=\"stage-4-results-and-interpretation\">Stage 4 \u00b7 Results and interpretation</h2></span>"
+          }
+        }
+      ],
+      "console": []
+    },
+    {
+      "id": "pHFh",
+      "code_hash": "1fc7fc8d6e79b1f9ca5e1a1d163e70de",
+      "outputs": [
+        {
+          "type": "data",
+          "data": {
+            "text/markdown": "<span class=\"markdown prose dark:prose-invert contents\"><h3 id=\"interpretation\">Interpretation</h3>\n<span class=\"paragraph\"><strong>Test A \u2014 Welch's t-test (unadjusted, pooled daily records).</strong>\nMean sales are higher on promo days: \u20ac8,229\nvs \u20ac5,930\n(raw mean difference +38.8%). On the log scale the difference is\n0.3462, i.e. \u2248 <strong>+41.4%</strong> uplift\n(95% CI (41.1%, 41.6%)).\nn = 376,875 promo vs 467,463 non-promo open store-days.\nWelch t = 412.3, p = 0 \u2014 far\nbelow \u03b1 = 0.05, so we <strong>reject H\u2080</strong>. Hedges' g = 0.89 on the log\nscale is not trivial, but note the imbalance: with 844,338\nrecords even modest effects become detectable, so statistical significance\nalone is not evidence of commercial importance.</span>\n<span class=\"paragraph\"><strong>Test B \u2014 Store-level paired comparison</strong> (1115 stores have both\npromo and non-promo observations; per-store promo-day counts range from\n263\u2013360). Within-store mean log difference = 0.3462,\n\u2248 <strong>+41.4%</strong>\n(95% CI (40.3%, 42.5%)).\nPaired t = 88.8, p = 0;\nWilcoxon signed-rank p = 5.91e-184; Cohen's dz = 2.66.\nThis is the more defensible estimate: it holds each store constant and\ncompares like with like days within the same store.</span>\n<span class=\"paragraph\"><strong>Statistical vs practical significance.</strong> The uplift is statistically\ndetectable but its <em>practical</em> value depends on promo costs and margins,\nwhich we cannot see in this data. And because promotions are planned\n(weekday-only), stores differ in promo intensity, and other calendar\neffects remain uncontrolled, the association is <strong>not causal evidence</strong>.</span></span>"
+          }
+        }
+      ],
+      "console": []
+    },
+    {
+      "id": "NCOB",
+      "code_hash": "af183747401f2f9cb74cfaa1b88f0086",
+      "outputs": [
+        {
+          "type": "data",
+          "data": {
+            "text/markdown": "<span class=\"markdown prose dark:prose-invert contents\"><h2 id=\"limitations-and-next-steps\">Limitations and next steps</h2>\n<ul>\n<li><strong>Observational data</strong>: promotions were chosen by store managers on weekdays;\n  no randomization means we cannot read this difference as a causal effect.</li>\n<li><strong>Within-store dependence</strong>: ~943 store-days each; per-store clustering is only\n  partially handled by the paired design \u2014 a mixed-effects or cluster-robust\n  regression would tighten uncertainty bands further.</li>\n<li><strong>Weekday confounding</strong>: promos run Mon\u2013Fri only, so Saturday and Sunday\n  (usually stronger trading days) sit exclusively in the non-promo group.\n  The paired estimate mitigates but cannot fully remove this.</li>\n<li><strong>Costs are invisible</strong>: higher revenue \u2260 higher profit; promo cost data\n  (discounts, lost margin) would be needed to judge profitability.</li>\n<li><strong>Heterogeneity</strong>: store type (a/b/c/d) and assortment may moderate the promo\n  effect; a per-store-type breakdown is a natural extension.</li>\n</ul>\n<span class=\"paragraph\"><strong>Recommended next steps.</strong> (1) Quantify promo economics by combining this sales\nuplift with per-store promo cost data. (2) Examine heterogeneous effects across\nstore types and weekends-opportunity stores. (3) Most decisively: run a\nrandomized controlled promo experiment across similar stores to estimate the\ntrue incremental (causal) lift.</span></span>"
+          }
+        }
+      ],
+      "console": []
+    }
+  ]
+}
