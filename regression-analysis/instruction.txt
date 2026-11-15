@@ -1,0 +1,519 @@
+# Residential Property Price Analysis & Prediction
+
+You are a data analyst working on a portfolio-quality predictive analytics project.
+
+The dataset has **already been downloaded and is available locally**. Do not search for or download another dataset. First inspect the available files and identify the correct housing dataset.
+
+The analysis must be implemented using a **Marimo notebook**, not Jupyter Notebook.
+
+## 1. Project Objective
+
+Conduct an end-to-end data analysis and predictive modeling project using the residential property dataset.
+
+The project should demonstrate the complete workflow:
+
+**Import → Cleaning & Exploration → EDA & Visualization → Feature Engineering → Regression Modeling → Model Evaluation → Interpretation → Reporting**
+
+The final result should be suitable for inclusion in a professional **data analysis portfolio**.
+
+---
+
+## 2. Main Analytical Questions
+
+The primary analytical question is:
+
+> **Can residential property sale prices be predicted from the physical characteristics, quality, size, age, and location-related characteristics of a property?**
+
+Investigate the following supporting questions:
+
+1. Which property characteristics have the strongest relationship with sale price?
+2. What characteristics appear to be associated with higher or lower property prices?
+3. Are there important nonlinear relationships between property characteristics and price?
+4. How well can regression models predict sale price for previously unseen properties?
+5. Does a more complex nonlinear model substantially improve predictive performance compared with simpler linear models?
+6. What are the major limitations and potential sources of prediction error?
+
+Do not assume that correlation or feature importance establishes causation. Clearly distinguish **association, prediction, and causation**.
+
+---
+
+# 3. Analysis Structure
+
+Organize the Marimo notebook into the following major sections.
+
+## 01 — Project Introduction
+
+Briefly explain:
+
+* The business/analytical problem
+* The dataset
+* The target variable
+* The analytical questions
+* The overall methodology
+
+The introduction should be concise and portfolio-oriented.
+
+---
+
+## 02 — Data Import and Initial Inspection
+
+Since the dataset is already downloaded:
+
+1. Locate and identify the dataset.
+2. Load it into a pandas DataFrame.
+3. Display the dataset dimensions.
+4. Inspect column names.
+5. Inspect data types.
+6. Examine a sample of observations.
+7. Generate appropriate descriptive statistics.
+8. Identify the target variable (`SalePrice` or the corresponding sale-price field in the provided dataset).
+
+Document important initial observations.
+
+---
+
+## 03 — Data Cleaning
+
+Perform a systematic data-quality assessment.
+
+Investigate:
+
+* Missing values
+* Duplicate observations
+* Incorrect data types
+* Suspicious or impossible values
+* Extreme observations/outliers
+* Inconsistent categorical values
+* Variables that should not be used for prediction
+* Potential data leakage
+
+Do not blindly remove observations or columns.
+
+For every significant cleaning decision:
+
+* Explain the problem.
+* Explain the chosen treatment.
+* Explain why the treatment is appropriate.
+
+Where appropriate, compare the dataset before and after cleaning.
+
+---
+
+# 4. Exploratory Data Analysis
+
+Conduct meaningful EDA rather than generating charts simply to increase the number of visualizations.
+
+## Target Variable
+
+Investigate the distribution of sale prices.
+
+Include appropriate visualizations such as:
+
+* Histogram/density plot
+* Box plot
+* Summary statistics
+
+Investigate whether the target variable is strongly skewed and discuss whether a transformation such as `log1p(SalePrice)` may be useful for regression.
+
+## Numerical Variables
+
+Investigate relationships between sale price and important numerical variables, particularly variables representing:
+
+* Living area
+* Basement area
+* Garage size/capacity
+* Number of rooms
+* Number of bathrooms
+* Property age
+* Year built
+* Remodeling year
+* Overall quality
+
+Use appropriate visualizations such as:
+
+* Scatter plots
+* Correlation analysis
+* Box plots where appropriate
+
+## Categorical Variables
+
+Investigate important categorical variables such as:
+
+* Neighborhood
+* Overall quality categories where applicable
+* Kitchen quality
+* Garage characteristics
+* Property condition
+
+Use appropriate comparisons such as:
+
+* Grouped summary statistics
+* Box plots
+* Bar charts
+
+## EDA Conclusions
+
+After the visualizations, explicitly summarize the major findings.
+
+Identify:
+
+* Strong relationships
+* Weak relationships
+* Potential nonlinear relationships
+* Potential outliers
+* Potential multicollinearity
+* Variables that may require transformation or encoding
+
+---
+
+# 5. Feature Engineering and Preprocessing
+
+Prepare the dataset for regression modeling.
+
+Consider appropriate transformations such as:
+
+* Log transformation of the target if justified
+* Log transformation of heavily skewed numerical predictors
+* Property age at time of sale
+* Total living/usable area
+* Total bathrooms where appropriate
+* Aggregated area variables where logically justified
+
+Handle categorical variables appropriately using techniques such as one-hot encoding.
+
+Handle numerical variables appropriately.
+
+Use a reproducible preprocessing pipeline where appropriate.
+
+Avoid feature engineering that uses information unavailable at the time a property price would actually be predicted.
+
+---
+
+# 6. Train/Test Split
+
+Split the data into training and testing sets.
+
+Use a reproducible random state.
+
+The test set must remain untouched during model development and hyperparameter selection.
+
+If cross-validation is used, perform it only on the training data.
+
+Clearly explain why this separation is necessary.
+
+---
+
+# 7. Regression Models
+
+Build and compare at least the following models.
+
+### Model 0 — Baseline
+
+Create a simple baseline prediction, such as predicting the training-set mean sale price.
+
+This establishes a reference point against which the regression models can be evaluated.
+
+### Model 1 — Linear Regression
+
+Build a standard multiple linear regression model.
+
+Use this as the primary interpretable baseline.
+
+### Model 2 — Ridge Regression
+
+Build a Ridge regression model.
+
+Use appropriate preprocessing/scaling and select the regularization parameter using cross-validation where appropriate.
+
+### Model 3 — Lasso Regression
+
+Build a Lasso regression model.
+
+Use cross-validation to select the regularization strength where appropriate.
+
+Discuss how Lasso can perform feature selection through coefficient shrinkage.
+
+### Model 4 — Random Forest Regression
+
+Build a Random Forest regression model to capture nonlinear relationships and interactions.
+
+Use reasonable hyperparameter tuning or cross-validation, but avoid excessive optimization that would make the project unnecessarily complex.
+
+---
+
+# 8. Model Evaluation
+
+Evaluate all models using:
+
+### Primary metrics
+
+* **MAE — Mean Absolute Error**
+* **RMSE — Root Mean Squared Error**
+* **R² — Coefficient of Determination**
+
+Explain what each metric means in the context of predicting house prices.
+
+MAE should be interpreted as the typical magnitude of prediction error in the target variable's units.
+
+RMSE should be used to show the impact of larger prediction errors.
+
+R² should describe the proportion of variation in sale prices explained by the model, while explicitly noting that it does not directly represent prediction accuracy.
+
+Where appropriate, compare both:
+
+* Performance on training data
+* Performance on unseen test data
+
+Look for signs of overfitting.
+
+---
+
+# 9. Model Comparison
+
+Create a clear model-comparison table containing at least:
+
+| Model             | MAE | RMSE | R² |
+| ----------------- | --: | ---: | -: |
+| Baseline          |     |      |    |
+| Linear Regression |     |      |    |
+| Ridge             |     |      |    |
+| Lasso             |     |      |    |
+| Random Forest     |     |      |    |
+
+Do not select a model based on R² alone.
+
+Discuss the trade-offs between:
+
+* Predictive performance
+* Interpretability
+* Complexity
+* Generalization
+* Computational cost
+
+Do not make unsupported claims about a model being universally "best." Explain which model performed differently according to the measured evaluation criteria.
+
+---
+
+# 10. Regression Diagnostics
+
+For the most relevant regression models, investigate:
+
+* Actual vs predicted values
+* Residuals
+* Residual distribution
+* Prediction errors
+* Potential heteroscedasticity
+* Large errors/outliers
+* Systematic patterns in residuals
+
+If the assumptions of ordinary linear regression appear problematic, explain what the evidence suggests.
+
+---
+
+# 11. Feature Interpretation
+
+Interpret the important predictors.
+
+For linear models:
+
+* Examine coefficients.
+* Explain the direction of the relationship.
+* Be careful when interpreting coefficients after transformations or scaling.
+
+For Random Forest:
+
+* Examine feature importance.
+* Where appropriate, consider permutation importance or another interpretable feature-importance method.
+
+Clearly state that feature importance does not establish causality.
+
+The goal is to answer:
+
+> **What characteristics of a property appear most useful for predicting its sale price?**
+
+---
+
+# 12. Final Analytical Findings
+
+Create a concise findings section addressing the original analytical questions.
+
+Summarize:
+
+1. The major patterns discovered during EDA.
+2. The most informative predictors.
+3. The performance of each regression model.
+4. Whether nonlinear modeling provided meaningful improvement.
+5. The degree of prediction error that remains.
+6. Important limitations.
+
+Do not overstate the results.
+
+---
+
+# 13. Final Report
+
+The notebook should conclude with a professional report-style summary containing:
+
+### Executive Summary
+
+A short explanation of:
+
+* The problem
+* The approach
+* Main findings
+* Model performance
+
+### Data Quality
+
+Summarize the important cleaning and preprocessing decisions.
+
+### EDA Findings
+
+Summarize the most important relationships discovered.
+
+### Modeling Results
+
+Present the model comparison table and explain the results.
+
+### Business Interpretation
+
+Explain what the analysis means from a practical property-pricing perspective.
+
+### Limitations
+
+Discuss relevant limitations, such as:
+
+* Dataset coverage
+* Geographic limitations
+* Historical rather than current market conditions
+* Missing variables
+* Outliers
+* Model assumptions
+* Prediction uncertainty
+* Potential distribution shift
+
+### Conclusion
+
+Return to the original analytical questions and provide evidence-based conclusions.
+
+---
+
+# 14. Visualization Requirements
+
+Use visualizations selectively and make them portfolio quality.
+
+Important visualizations should include, where appropriate:
+
+1. Sale-price distribution
+2. Important numerical feature vs sale price
+3. Correlation analysis
+4. Important categorical variable vs sale price
+5. Actual vs predicted prices
+6. Residual/error visualization
+7. Model performance comparison
+8. Feature importance/coefficient visualization
+
+Every visualization should have:
+
+* Clear title
+* Meaningful axis labels
+* Appropriate units
+* Readable formatting
+* A short interpretation in the notebook
+
+Avoid unnecessary decorative charts.
+
+---
+
+# 15. Marimo Requirements
+
+The project must be implemented as a **Marimo notebook**.
+
+Use Marimo's reactive structure appropriately.
+
+Keep the notebook:
+
+* Reproducible
+* Executable from top to bottom
+* Logically organized
+* Easy to read
+* Suitable for someone reviewing it as a portfolio project
+
+Avoid unnecessary hidden state.
+
+Where useful, use Marimo UI elements/interactivity to allow exploration of important model or dataset parameters, but do not add interactivity merely for decoration.
+
+---
+
+# 16. Deliverables
+
+Produce the following deliverables:
+
+### 1. Marimo notebook
+
+A complete executable `.py` Marimo notebook containing the entire analysis.
+
+### 2. Clean analysis workflow
+
+The notebook should clearly show:
+
+**Import → Cleaning → EDA → Feature Engineering → Modeling → Evaluation → Interpretation → Reporting**
+
+### 3. Model comparison
+
+A final table comparing:
+
+* Baseline
+* Linear Regression
+* Ridge
+* Lasso
+* Random Forest
+
+using:
+
+* MAE
+* RMSE
+* R²
+
+### 4. Visualizations
+
+Include the key EDA, prediction, residual, and model-interpretation visualizations.
+
+### 5. Final report section
+
+The notebook must contain a polished final section suitable for showing to a portfolio reviewer.
+
+### 6. Reproducibility
+
+The analysis should run from the locally available dataset without requiring the dataset to be downloaded again.
+
+---
+
+# 17. Quality Standards
+
+This is a **portfolio project**, not merely an exercise demonstrating how to call scikit-learn.
+
+Prioritize:
+
+* Correct statistical reasoning
+* Reproducibility
+* Clear explanations
+* Appropriate visualization
+* Good data-cleaning practices
+* Proper train/test separation
+* Avoidance of data leakage
+* Meaningful model evaluation
+* Interpretation of results
+* Honest discussion of limitations
+
+Do not artificially inflate model performance.
+
+Do not hide poor results.
+
+Do not claim causation from observational data.
+
+Do not use the test set repeatedly for model selection.
+
+Where a methodological choice is debatable, explain the choice and its implications.
+
+The final notebook should demonstrate that the analyst understands **the entire data-analysis process**, not merely how to train a regression model.
