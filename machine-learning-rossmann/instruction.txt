@@ -1,0 +1,390 @@
+# AI Agent Instructions: Supermarket Sales Prediction Using Machine Learning
+
+## 1. Project Objective
+
+Complete an end-to-end machine learning and data analysis project using the supermarket sales dataset already available in the local project directory:
+
+`./rossmann-sales-data/`
+
+The project is intended for a personal data analysis portfolio. Its purpose is to demonstrate practical skills in data preparation, exploratory data analysis, feature engineering, regression modeling, model evaluation, and business recommendations.
+
+Use **Python and marimo** as the primary analysis environment. Do not use Jupyter Notebook.
+
+The data files have already been collected and downloaded. Inspect the contents of `./rossmann-sales-data/` to identify the available datasets, their structure, and the variables relevant to the analysis. Files may include:
+
+- `train.csv` — historical daily store records containing actual `Sales` values, dates, store identifiers, promotions, customer counts, and other variables.
+- `store.csv` — optional store metadata, potentially including store type, assortment, and competition information.
+
+The original source of the dataset is unknown. Do not assume or invent its provenance. Base the analysis on the available files and their observed contents. If the original source cannot be established from local documentation or reliable evidence, explicitly state that it is unknown.
+
+Treat the dataset as an independent analytical resource for learning and portfolio development. The objective is to demonstrate a complete machine learning workflow, not to participate in a competition.
+
+## 2. Main Analytical Question
+
+**Can we predict daily supermarket sales using historical sales patterns, promotional activities, calendar information, and available store characteristics?**
+
+Investigate the following supporting questions:
+
+1. How accurately can machine learning models predict daily sales for unseen dates?
+2. Which variables contribute most to sales prediction?
+3. How are promotions, weekdays, holidays, and seasonal patterns associated with sales?
+4. Does prediction accuracy vary across stores or operating conditions?
+5. How can sales forecasts help supermarket managers plan staffing, inventory, promotions, and daily operations?
+
+Distinguish predictive relationships from causal conclusions. Observed associations alone do not establish that a factor causes sales to increase or decrease.
+
+## 3. Main Stages of Analysis
+
+Organize the project into four main stages:
+
+1. **Import, Cleaning, and Exploring**
+2. **Feature Engineering**
+3. **Modeling: Building and Evaluating**
+4. **Advising: Business Recommendations and Reporting**
+
+Each stage must include relevant code, explanations, analytical outputs, and documented findings.
+
+## 4. Detailed Analysis Workflow
+
+### Stage 1 — Import, Cleaning, and Exploring
+
+#### 1.1. Data Import and Inspection
+
+- Inspect the files available in `./rossmann-sales-data/`.
+- Identify the relevant datasets and load them using pandas.
+- Examine dataset dimensions, column names, data types, and sample records.
+- Identify the target variable and potential predictors.
+- Inspect numerical and categorical variables.
+- Determine whether datasets should be joined using a shared identifier, such as `Store`.
+- Consult available local documentation if present, but do not assume undocumented column meanings without investigating them.
+- Record the observed structure and limitations of the data.
+
+#### 1.2. Data Cleaning
+
+- Check for missing values, duplicate records, inconsistent data types, and invalid observations.
+- Convert date columns to appropriate datetime types.
+- Investigate zero or nonpositive sales and distinguish closed-store records from other explanations where possible.
+- Examine missing values in store characteristics, competition information, and promotion-related fields.
+- Apply appropriate cleaning and imputation methods, explaining the rationale.
+- Avoid deleting valid observations without justification.
+- Verify the uniqueness of the intended store-date observation and investigate duplicate store-date combinations.
+- Document the resulting dataset dimensions and any significant changes caused by cleaning.
+
+#### 1.3. Exploratory Data Analysis
+
+Perform descriptive statistics and visual analysis to understand sales behavior before building models.
+
+Investigate:
+
+- Overall sales distribution, central tendency, variability, and outliers.
+- Sales trends over time.
+- Sales differences across weekdays, months, seasons, and years.
+- Sales during promotional and nonpromotional periods.
+- Sales around holidays and special trading days, where relevant variables are available.
+- Sales differences between stores.
+- Differences across store types, assortment types, and competition characteristics, if available.
+- Relationships between sales, customer counts, and other relevant numerical variables.
+
+Create suitable visualizations, such as:
+
+- Histograms and box plots.
+- Time-series line charts.
+- Bar charts comparing groups.
+- Scatter plots and correlation heatmaps, where appropriate.
+
+Summarize the most important findings and explain how they inform feature engineering and model selection.
+
+### Stage 2 — Feature Engineering
+
+Prepare a feature matrix suitable for supervised regression.
+
+#### 2.1. Date-Based Features
+
+Where a valid date variable exists, extract relevant features such as:
+
+- Year, month, day of month, and day of week.
+- Week of year.
+- Weekend indicators, where relevant.
+- Seasonal or calendar-period indicators, where justified.
+
+Consider cyclical representations of calendar variables when useful for the selected model.
+
+#### 2.2. Store and Business Features
+
+Use relevant available variables, such as:
+
+- Store type and assortment.
+- Promotion indicators.
+- Holiday or school-holiday indicators.
+- Competition distance and competition-opening information.
+- Other documented store characteristics.
+
+Encode categorical variables and handle missing values appropriately. Use preprocessing pipelines where beneficial.
+
+#### 2.3. Historical Sales Features
+
+Where sufficient historical observations are available, consider features such as:
+
+- Previous-day sales.
+- Sales on the same weekday in previous weeks.
+- Rolling mean and rolling variability over selected historical windows.
+
+Construct these features separately for each store and in chronological order.
+
+Every historical feature must use only information available before the date being predicted. Ensure that rolling calculations, shifting operations, and validation boundaries do not introduce future information.
+
+#### 2.4. Feature Availability and Leakage Prevention
+
+Define the prediction scenario explicitly: predicting sales for a future store-day using information available at the time of prediction.
+
+Exclude variables that would not be available at that time. For example, actual customer counts for the day being predicted must not be used to forecast that day's sales in advance.
+
+Also avoid using:
+
+- Future sales observations.
+- Target-derived information unavailable at prediction time.
+- Validation-period outcomes during training or feature construction.
+- Transformations fitted using validation data.
+
+Document the final target variable, predictor features, and assumptions about information availability.
+
+### Stage 3 — Modeling: Building and Evaluating
+
+#### 3.1. Define the Modeling Task
+
+- **Target:** Daily `Sales`, if inspection confirms that this variable exists and represents the intended outcome.
+- **Task:** Supervised regression.
+- **Prediction unit:** A store-day observation.
+- **Objective:** Predict sales for dates not used to fit the model.
+
+If the available files differ from these expectations, adapt the analysis to their actual structure and explain the necessary changes.
+
+#### 3.2. Establish a Baseline
+
+Build a simple baseline model against which more advanced models can be compared.
+
+Consider a mean-based predictor or a historical-sales baseline if the necessary historical information is available.
+
+The baseline must follow the same validation protocol as the other models. Explain why it is appropriate and what it reveals about the difficulty of the prediction task.
+
+#### 3.3. Build Regression Models
+
+Train and compare the following models, where supported by the available data:
+
+1. **Linear Regression** — an interpretable starting model.
+2. **Random Forest Regressor** — captures nonlinear relationships and interactions.
+3. **Gradient Boosting Regressor** — use an appropriate implementation, such as scikit-learn's `HistGradientBoostingRegressor`.
+
+Include the baseline in the comparison.
+
+Use scikit-learn pipelines where appropriate so that preprocessing and model fitting remain consistent. Fit learned transformations using training data only.
+
+Choose computationally reasonable settings and document important model parameters.
+
+#### 3.4. Train/Validation Strategy
+
+Use a chronological train/validation split rather than randomly shuffling observations across time.
+
+- Train on earlier dates.
+- Validate on a later, unseen period.
+- Apply the same validation dates to all models.
+- Ensure that lagged and rolling features use only historical information.
+- Document the split dates and the number of observations in each partition.
+
+If useful, perform additional time-based validation to assess whether model performance is stable across different periods.
+
+When using multiple stores, preserve the intended forecasting scenario. Explain whether the model is evaluated on future dates for known stores or on stores not represented in training, as these are different generalization tasks.
+
+#### 3.5. Evaluation Metrics
+
+Evaluate all models on the same validation observations using the following metrics.
+
+**Mean Absolute Error (MAE)**
+
+Measures the average absolute difference between actual and predicted sales. It is expressed in the same units as sales and is relatively easy to interpret.
+
+**Root Mean Squared Error (RMSE)**
+
+Measures the square root of the average squared prediction error. It penalizes large errors more heavily than MAE.
+
+**Coefficient of Determination (\(R^2\))**
+
+Measures predictive performance relative to predicting the observed target mean. Interpret the result in the context of the validation data.
+
+Compare all models in a single results table.
+
+- Lower MAE is generally preferable.
+- Lower RMSE is generally preferable.
+- Higher \(R^2\) is generally preferable.
+
+Explain what the metrics mean in practical terms. Do not assume that a complex model performs better simply because it is more advanced.
+
+If sales values are heavily concentrated in certain ranges, consider reporting additional diagnostic measures or segment-level errors to provide a more complete assessment.
+
+#### 3.6. Model Improvement and Selection
+
+After evaluating the initial models:
+
+- Identify the strongest candidate based on validation results.
+- Tune selected hyperparameters if beneficial.
+- Compare tuned and untuned performance.
+- Assess whether improvements are meaningful.
+- Consider interpretability, computational cost, and complexity alongside predictive accuracy.
+
+Use validation results for model selection. If a separate final test period is available and justified, reserve it for an independent final assessment.
+
+Do not claim that a model generalizes well solely because it performs well on training data.
+
+#### 3.7. Model Interpretation and Error Analysis
+
+Analyze the selected model's predictions.
+
+- Plot actual versus predicted sales.
+- Plot residuals and examine their distribution.
+- Examine absolute prediction errors.
+- Compare performance across stores, weekdays, months, and promotion conditions where appropriate.
+- Investigate systematic overprediction or underprediction.
+- Examine feature importance using a suitable method.
+
+Explain what the analysis reveals about model strengths and weaknesses.
+
+Feature importance and predictive associations must not be presented as proof of causal relationships.
+
+### Stage 4 — Advising: Business Recommendations and Reporting
+
+Translate the results into practical recommendations supported by the analysis.
+
+Address the following questions:
+
+1. Which model should be selected, and why?
+2. How accurate are its predictions relative to typical daily sales?
+3. Which features are most useful for prediction?
+4. Under which conditions does the model perform well or poorly?
+5. How could forecasts support staffing, inventory planning, and promotional planning?
+6. What additional information or analysis would improve the model?
+7. What limitations should decision-makers understand before using the forecasts?
+
+Use actual results from the analysis to support recommendations.
+
+Do not invent model performance, business benefits, or findings. Clearly distinguish measured results from proposed future applications.
+
+Explain that forecasts can inform operational decisions but cannot independently determine optimal inventory, staffing, or promotional strategies without additional business information.
+
+## 5. Implementation Requirements
+
+- Use Python and marimo, not Jupyter Notebook.
+- Use pandas and NumPy for data manipulation, matplotlib for visualizations, and scikit-learn for modeling and evaluation.
+- Create a valid marimo notebook as a `.py` file.
+- Follow marimo's reactive programming practices and avoid conflicting variable definitions across cells.
+- Organize the notebook into clearly labeled sections corresponding to the four main stages.
+- Include concise markdown explanations for analytical decisions and findings.
+- Use descriptive variable names and modular functions where beneficial.
+- Give visualizations informative titles, axis labels, legends, and units.
+- Set random seeds where applicable to support reproducibility.
+- Use efficient operations appropriate for the dataset size.
+- Avoid unnecessary complexity and redundant computations.
+- Do not hardcode conclusions before the analysis is executed.
+- Do not fabricate results, charts, metrics, or interpretations.
+- Ensure that the notebook runs from beginning to end in the intended environment.
+
+Prioritize readability, reproducibility, sound statistical reasoning, and clear communication.
+
+## 6. Expected Deliverables
+
+### Deliverable 1 — Marimo Notebook
+
+Create:
+
+`retail_sales_ml.py`
+
+The notebook must include:
+
+- Project objective and analytical questions.
+- Data import and initial inspection.
+- Data cleaning and preparation.
+- Exploratory data analysis.
+- Feature engineering.
+- Train/validation splitting.
+- Baseline and regression model training.
+- Model evaluation and comparison.
+- Model interpretation and error analysis.
+- Business recommendations.
+- Conclusions and limitations.
+
+It must contain explanatory text alongside code and generated outputs.
+
+### Deliverable 2 — Analysis Report
+
+Create:
+
+`report.md`
+
+Include:
+
+- Project objective and business problem.
+- Dataset overview and any provenance limitations.
+- Main EDA findings.
+- Feature engineering approach.
+- Models evaluated.
+- Validation methodology.
+- Model comparison table containing MAE, RMSE, and \(R^2\).
+- Selected model and justification.
+- Important predictive findings.
+- Error analysis.
+- Practical business recommendations.
+- Limitations and possible next steps.
+
+Populate the report with actual results generated by executing the analysis.
+
+### Deliverable 3 — Supporting Outputs
+
+Where useful, save:
+
+- Model comparison results in a CSV file.
+- Actual and predicted validation values in a CSV file.
+- Key visualizations in an organized output directory.
+- The fitted model, including its preprocessing pipeline, if it can be saved and reused reliably.
+
+Avoid creating unnecessary files that duplicate the notebook or report.
+
+### Deliverable 4 — Project README
+
+Create:
+
+`README.md`
+
+Explain:
+
+- Project purpose and main analytical question.
+- Available dataset files and their local directory.
+- Dataset provenance, noting that the original source is unknown unless it can be verified.
+- Main stages of analysis.
+- Libraries and environment requirements.
+- Instructions for running the marimo notebook.
+- Summary of the actual findings.
+- Locations of reports and generated outputs.
+
+## 7. Final Quality Checklist
+
+Before declaring the project complete, verify that:
+
+- Available files were inspected and loaded successfully.
+- The target variable and relevant predictors were confirmed from the actual data.
+- Cleaning decisions and EDA findings are documented.
+- Feature engineering is reproducible and leakage-free.
+- The validation split respects chronological order.
+- All models use a fair and consistent evaluation procedure.
+- MAE, RMSE, and \(R^2\) are calculated correctly.
+- Model comparisons use actual validation results.
+- Error analysis and evidence-based recommendations are included.
+- The notebook runs successfully from beginning to end.
+- All deliverables are saved in clearly organized locations.
+- The report accurately reflects the executed analysis.
+
+## 8. Completion Standard
+
+The project is complete when it demonstrates a coherent, reproducible machine learning workflow that connects a real business question to data exploration, feature engineering, predictive modeling, rigorous evaluation, and practical recommendations.
+
+The final result should be understandable to a technical reviewer while communicating the business value and limitations of the analysis to a nontechnical audience.
+
+**Start by inspecting the actual contents of `./rossmann-sales-data/`. Adapt the analysis to the available columns and records, implement the workflow systematically, execute the notebook, verify the outputs, correct any errors, and produce all required deliverables using the actual analytical results.**

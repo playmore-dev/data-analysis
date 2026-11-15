@@ -1,0 +1,32 @@
+{
+  "models": [
+    {
+      "model": "Naive (last week same weekday)",
+      "RMSPE": 0.48949383299732213,
+      "MAE": 2418.4215530509905,
+      "RMSE": 3062.9994703800367,
+      "MAPE (%) (zero-sales excluded)": 37.63901293072208
+    },
+    {
+      "model": "Ridge (log target)",
+      "RMSPE": 0.19429761297550407,
+      "MAE": 884.5795168154527,
+      "RMSE": 1291.8282352259964,
+      "MAPE (%) (zero-sales excluded)": 13.198793015113297
+    },
+    {
+      "model": "RandomForest (log target)",
+      "RMSPE": 0.12496245652048604,
+      "MAE": 610.4027343296326,
+      "RMSE": 888.1655413404873,
+      "MAPE (%) (zero-sales excluded)": 9.137945461073338
+    },
+    {
+      "model": "HistGradientBoosting (log target)",
+      "RMSPE": 0.12822279281702623,
+      "MAE": 624.6847743126524,
+      "RMSE": 900.8578398934303,
+      "MAPE (%) (zero-sales excluded)": 9.347637469969811
+    }
+  ]
+}
